@@ -52,15 +52,15 @@ export default function LandingPage() {
       </main>
 
       <footer className="px-8 py-12 border-t border-border flex flex-col md:flex-row justify-between items-center gap-6 text-[10px] uppercase tracking-widest text-muted-foreground">
-        <div>© 2026 Valence Intelligence</div>
+        <div>© 2026 carbo Intelligence</div>
         <div className="flex gap-8">
-          <Link href="#" className="hover:text-foreground transition-colors">
+          <Link href="/privacy" className="hover:text-foreground transition-colors">
             Privacy
           </Link>
-          <Link href="#" className="hover:text-foreground transition-colors">
+          <Link href="/terms" className="hover:text-foreground transition-colors">
             Terms
           </Link>
-          <Link href="#" className="hover:text-foreground transition-colors">
+          <Link href="/contact" className="hover:text-foreground transition-colors">
             Contact
           </Link>
         </div>
