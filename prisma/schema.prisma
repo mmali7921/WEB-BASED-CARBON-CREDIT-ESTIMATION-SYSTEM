@@ -78,3 +78,14 @@ model CarbonEntry {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+model EmissionFactor {
+  id          String   @id @default(cuid())
+  source      String   @unique
+  factor      Float
+  unit        String
+  category    String   // e.g. "Emission", "Reduction", "Capture"
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

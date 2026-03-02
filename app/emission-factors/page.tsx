@@ -1,20 +1,15 @@
 import { Navbar } from "@/components/navbar"
 import { Card, CardContent } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { prisma } from "@/lib/prisma"
 
-export default function EmissionFactorsPage() {
-  const emissionFactors = [
-    { source: "Electricity", factor: "0.82", unit: "kg CO₂ per kWh" },
-    { source: "Petrol", factor: "2.31", unit: "kg CO₂ per liter" },
-    { source: "Diesel", factor: "2.68", unit: "kg CO₂ per liter" },
-    { source: "LPG", factor: "1.51", unit: "kg CO₂ per kg" },
-    { source: "Tree Absorption", factor: "21.00", unit: "kg CO₂ per year" },
-  ]
+export default async function EmissionFactorsPage() {
+  const dbFactors = await prisma.emissionFactor.findMany({
+    orderBy: { source: "asc" }
+  })
 
-  const captureFactors = [
-    { source: "Direct Air Capture (DAC)", factor: "1.00", unit: "kg CO₂ removed per kg captured" },
-    { source: "Carbon Capture & Storage (CCS)", factor: "1.00", unit: "kg CO₂ removed per kg captured" },
-  ]
+  const emissionFactors = dbFactors.filter(f => f.category === "Emission" || f.category === "Reduction")
+  const captureFactors = dbFactors.filter(f => f.category === "Capture")
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
