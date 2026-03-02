@@ -8,8 +8,8 @@ const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
+  title: 'Valence - Climate Intelligence',
+  description: 'Structured metrics for a net-zero future.',
   generator: 'v0.app',
   icons: {
     icon: [

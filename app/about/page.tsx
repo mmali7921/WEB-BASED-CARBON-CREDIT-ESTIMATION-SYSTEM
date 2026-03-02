@@ -49,7 +49,7 @@ export default function AboutPage() {
                                         We built a transparent baseline engine.
                                     </p>
                                     <p>
-                                        Carbon Credit Recorder is a centralized platform designed to seamlessly process raw usage metrics—electricity, transport, fuels—against verified reduction efforts like solar and direct air capture.
+                                        Valence is a centralized platform designed to seamlessly process raw usage metrics—electricity, transport, fuels—against verified reduction efforts like solar and direct air capture.
                                     </p>
                                     <p>
                                         The result is an immediate, irrefutable snapshot of your net emissions and carbon credit positioning.
