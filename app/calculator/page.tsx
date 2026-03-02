@@ -33,6 +33,10 @@ export default function CalculatorPage() {
 
   const [isSaving, setIsSaving] = useState(false)
   const [saveSuccess, setSaveSuccess] = useState(false)
+  const [entryMonth, setEntryMonth] = useState(() => {
+    const d = new Date()
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`
+  })
 
   const calculate = (e: React.FormEvent) => {
     e.preventDefault()
@@ -80,6 +84,7 @@ export default function CalculatorPage() {
         energyUsage: breakdown.gross,
         distance: 0, // Keeping distance as 0 since the UI doesn't track distance explicitly
         totalCarbon: breakdown.net,
+        date: new Date(`${entryMonth}-01T12:00:00Z`), // Using middle of selected month's UTC
       })
       setSaveSuccess(true)
     } catch (error) {
@@ -299,11 +304,23 @@ export default function CalculatorPage() {
                   </div>
 
                   <div className="flex flex-col items-center gap-4 mt-8">
-                    <div className="flex justify-center gap-4">
+                    {session?.user && !saveSuccess && (
+                      <div className="flex flex-col items-center gap-2 mb-2">
+                        <Label className="text-[10px] uppercase tracking-widest text-muted-foreground mr-2 font-bold">Select Month To Save For</Label>
+                        <Input
+                          type="month"
+                          value={entryMonth}
+                          onChange={(e) => setEntryMonth(e.target.value)}
+                          className="w-36 h-8 bg-transparent border-t-0 border-x-0 border-b border-border focus:border-foreground rounded-none text-xs uppercase tracking-widest text-center shadow-none mb-2"
+                        />
+                      </div>
+                    )}
+                    <div className="flex justify-center gap-6">
                       <Button
+                        type="button"
                         onClick={() => setBreakdown(null)}
                         variant="outline"
-                        className="rounded-full border-foreground hover:bg-foreground hover:text-background transition-all uppercase text-[10px] tracking-widest"
+                        className="rounded-full border-border hover:bg-secondary transition-all uppercase text-[10px] tracking-widest font-medium px-6"
                       >
                         <RefreshCcw className="w-3 h-3 mr-2" /> New Calculation
                       </Button>
@@ -312,7 +329,7 @@ export default function CalculatorPage() {
                         <Button
                           onClick={handleSave}
                           disabled={isSaving}
-                          className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 transition-all uppercase text-[10px] tracking-widest"
+                          className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 transition-all uppercase text-[10px] tracking-widest px-8"
                         >
                           {isSaving ? "Saving..." : "Save Entry"}
                         </Button>

@@ -8,6 +8,7 @@ export async function saveCarbonEntry(data: {
     energyUsage: number
     distance: number
     totalCarbon: number
+    date?: string | Date
 }) {
     const session = await auth()
 
@@ -21,6 +22,7 @@ export async function saveCarbonEntry(data: {
             energyUsage: data.energyUsage,
             distance: data.distance,
             totalCarbon: data.totalCarbon,
+            date: data.date ? new Date(data.date) : new Date(),
         },
     })
 
