@@ -174,24 +174,38 @@ export default function AboutPage() {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                        {/* Placeholder Team Member */}
-                        <div className="border border-border p-6 group hover:border-accent transition-colors">
-                            <div className="w-12 h-12 bg-secondary rounded-full flex items-center justify-center mb-6">
-                                <Users className="w-5 h-5 text-muted-foreground group-hover:text-accent transition-colors" />
-                            </div>
-                            <h4 className="font-medium text-lg mb-1">Muhammed Ali</h4>
-                            <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-4">Lead Developer</p>
-                            <p className="text-sm text-foreground/70 leading-relaxed">
-                                Focused on architectural design, UI consistency, and implementing scalable data persistence models.
-                            </p>
-                        </div>
-
-                        {/* Empty Placeholders to show grid layout format */}
-                        {[2, 3].map((_, i) => (
-                            <div key={i} className="border border-border border-dashed p-6 flex flex-col items-center justify-center text-center opacity-50">
-                                <Users className="w-6 h-6 text-muted-foreground mb-4" />
-                                <p className="text-xs uppercase tracking-widest text-muted-foreground">Team Member Area</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {[
+                            {
+                                name: "N Hashim Iqbal",
+                                role: "Founder & Research",
+                                desc: "Originated the core vision of the platform and led foundational research into carbon accounting frameworks, emission standards, and credit mechanisms."
+                            },
+                            {
+                                name: "Muhammed Ali",
+                                role: "Lead Eng & Architect",
+                                desc: "Designed and built the platform architecture end‑to‑end. Focused on scalable system design, structured calculation workflows, and maintaining a refined UI system."
+                            },
+                            {
+                                name: "Muhammed Hisham K",
+                                role: "Ops & Validation",
+                                desc: "Contributed to workflow validation, system logic refinement, and ensuring the product aligns with practical, real-world carbon accounting methodologies."
+                            },
+                            {
+                                name: "Mohammed Swalih AK",
+                                role: "Strategy & Docs",
+                                desc: "Supported product positioning, feature validation, and structured documentation connecting research insights with technical implementation."
+                            }
+                        ].map((member, i) => (
+                            <div key={i} className="border border-border p-6 group hover:border-accent transition-colors flex flex-col h-full">
+                                <div className="w-12 h-12 bg-secondary rounded-full flex items-center justify-center mb-6 shrink-0">
+                                    <Users className="w-5 h-5 text-muted-foreground group-hover:text-accent transition-colors" />
+                                </div>
+                                <h4 className="font-medium text-lg mb-1">{member.name}</h4>
+                                <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-4">{member.role}</p>
+                                <p className="text-sm text-foreground/70 leading-relaxed flex-grow">
+                                    {member.desc}
+                                </p>
                             </div>
                         ))}
                     </div>
