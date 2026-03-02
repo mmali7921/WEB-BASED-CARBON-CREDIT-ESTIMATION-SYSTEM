@@ -7,8 +7,23 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button"
 import { Download, ChevronDown } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { getCarbonEntries } from "@/app/actions/carbon"
+import { useSession } from "next-auth/react"
+import { useEffect, useState as useReactState } from "react"
 
 export default function DashboardPage() {
+  const { data: session } = useSession()
+  const [dbRecords, setDbRecords] = useReactState<any[]>([])
+
+  useEffect(() => {
+    async function loadRecords() {
+      if (session?.user) {
+        const data = await getCarbonEntries()
+        setDbRecords(data)
+      }
+    }
+    loadRecords()
+  }, [session])
   const [selectedMonth, setSelectedMonth] = useState("December 2025")
 
   const months = ["December 2025", "November 2025", "October 2025", "September 2025"]
@@ -221,14 +236,31 @@ export default function DashboardPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {records.map((record, i) => (
-                <TableRow key={i}>
-                  <TableCell>{record.date}</TableCell>
-                  <TableCell>{record.activity}</TableCell>
-                  <TableCell>{record.emissions}</TableCell>
-                  <TableCell>{record.credits}</TableCell>
+              {session?.user && dbRecords.length > 0 ? (
+                dbRecords.map((record, i) => (
+                  <TableRow key={i}>
+                    <TableCell>{new Date(record.date).toLocaleDateString()}</TableCell>
+                    <TableCell>Calculated Assessment</TableCell>
+                    <TableCell>{record.energyUsage.toFixed(2)} kg (Gross)</TableCell>
+                    <TableCell>{record.totalCarbon.toFixed(4)}</TableCell>
+                  </TableRow>
+                ))
+              ) : session?.user && dbRecords.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
+                    No calculations saved yet.
+                  </TableCell>
                 </TableRow>
-              ))}
+              ) : (
+                records.map((record, i) => (
+                  <TableRow key={i}>
+                    <TableCell>{record.date}</TableCell>
+                    <TableCell>{record.activity}</TableCell>
+                    <TableCell>{record.emissions}</TableCell>
+                    <TableCell>{record.credits}</TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </section>

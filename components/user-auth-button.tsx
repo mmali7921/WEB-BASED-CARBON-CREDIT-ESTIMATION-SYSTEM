@@ -1,5 +1,6 @@
-import { signIn, signOut, auth } from "@/auth"
+import { auth } from "@/auth"
 import { Button } from "@/components/ui/button"
+import { handleSignIn, handleSignOut } from "@/app/actions/auth"
 
 export async function UserAuthButton() {
     const session = await auth()
@@ -8,12 +9,7 @@ export async function UserAuthButton() {
         return (
             <div className="flex items-center gap-4">
                 <span className="text-sm">{session.user.name}</span>
-                <form
-                    action={async () => {
-                        "use server"
-                        await signOut()
-                    }}
-                >
+                <form action={handleSignOut}>
                     <Button variant="outline" type="submit">Sign Out</Button>
                 </form>
             </div>
@@ -21,12 +17,7 @@ export async function UserAuthButton() {
     }
 
     return (
-        <form
-            action={async () => {
-                "use server"
-                await signIn("google")
-            }}
-        >
+        <form action={handleSignIn}>
             <Button type="submit">Sign in with Google</Button>
         </form>
     )

@@ -10,8 +10,10 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowLeft, RefreshCcw, Lightbulb } from "lucide-react"
 import Link from "next/link"
-
+import { saveCarbonEntry } from "@/app/actions/carbon"
+import { useSession } from "next-auth/react"
 export default function CalculatorPage() {
+  const { data: session } = useSession()
   const [electricity, setElectricity] = useState("")
   const [petrol, setPetrol] = useState("")
   const [diesel, setDiesel] = useState("")
@@ -28,6 +30,9 @@ export default function CalculatorPage() {
     isCompliant: boolean
     suggestions: string[]
   } | null>(null)
+
+  const [isSaving, setIsSaving] = useState(false)
+  const [saveSuccess, setSaveSuccess] = useState(false)
 
   const calculate = (e: React.FormEvent) => {
     e.preventDefault()
@@ -63,6 +68,25 @@ export default function CalculatorPage() {
     }
 
     setBreakdown({ gross, reduction, net, credits: creditDiff, isCompliant, suggestions })
+    setSaveSuccess(false) // reset success state on new calc
+  }
+
+  const handleSave = async () => {
+    if (!breakdown) return
+
+    setIsSaving(true)
+    try {
+      await saveCarbonEntry({
+        energyUsage: breakdown.gross,
+        distance: 0, // Keeping distance as 0 since the UI doesn't track distance explicitly
+        totalCarbon: breakdown.net,
+      })
+      setSaveSuccess(true)
+    } catch (error) {
+      console.error("Failed to save entry", error)
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   return (
@@ -274,14 +298,38 @@ export default function CalculatorPage() {
                     </h3>
                   </div>
 
-                  <div className="flex justify-center">
-                    <Button
-                      onClick={() => setBreakdown(null)}
-                      variant="outline"
-                      className="rounded-full border-foreground hover:bg-foreground hover:text-background transition-all uppercase text-[10px] tracking-widest"
-                    >
-                      <RefreshCcw className="w-3 h-3 mr-2" /> New Calculation
-                    </Button>
+                  <div className="flex flex-col items-center gap-4 mt-8">
+                    <div className="flex justify-center gap-4">
+                      <Button
+                        onClick={() => setBreakdown(null)}
+                        variant="outline"
+                        className="rounded-full border-foreground hover:bg-foreground hover:text-background transition-all uppercase text-[10px] tracking-widest"
+                      >
+                        <RefreshCcw className="w-3 h-3 mr-2" /> New Calculation
+                      </Button>
+
+                      {session?.user && !saveSuccess && (
+                        <Button
+                          onClick={handleSave}
+                          disabled={isSaving}
+                          className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90 transition-all uppercase text-[10px] tracking-widest"
+                        >
+                          {isSaving ? "Saving..." : "Save Entry"}
+                        </Button>
+                      )}
+                    </div>
+
+                    {saveSuccess && (
+                      <p className="text-xs text-accent uppercase tracking-widest font-bold animate-in fade-in duration-300">
+                        Entry saved successfully!
+                      </p>
+                    )}
+
+                    {!session?.user && (
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-widest text-center mt-2">
+                        Sign in to save this calculation to your dashboard
+                      </p>
+                    )}
                   </div>
                 </CardContent>
               </Card>
