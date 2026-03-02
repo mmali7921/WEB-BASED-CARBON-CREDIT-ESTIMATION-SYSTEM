@@ -9,11 +9,17 @@ export default auth((req) => {
     }
 
     if (!isLoggedIn) {
-        // Redirect unauthenticated users to a minimal sign-in page or the provider directly.
-        return Response.redirect(new URL("/api/auth/signin", req.nextUrl))
+        let callbackUrl = req.nextUrl.pathname
+        if (req.nextUrl.search) {
+            callbackUrl += req.nextUrl.search
+        }
+
+        const encodedCallbackUrl = encodeURIComponent(callbackUrl)
+
+        return Response.redirect(new URL(`/api/auth/signin?callbackUrl=${encodedCallbackUrl}`, req.nextUrl))
     }
 })
 
 export const config = {
-    matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+    matcher: ["/calculator/:path*", "/dashboard/:path*", "/emission-factors/:path*"],
 }
