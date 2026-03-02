@@ -10,8 +10,9 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowLeft, RefreshCcw, Lightbulb } from "lucide-react"
 import Link from "next/link"
-import { saveCarbonEntry } from "@/app/actions/carbon"
+import { saveCarbonEntry, getPublicEmissionFactors } from "@/app/actions/carbon"
 import { useSession } from "next-auth/react"
+import { useEffect } from "react"
 export default function CalculatorPage() {
   const { data: session } = useSession()
   const [electricity, setElectricity] = useState("")
@@ -38,17 +39,46 @@ export default function CalculatorPage() {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`
   })
 
+  // Dynamic factors from DB
+  const [factors, setFactors] = useState<{ [key: string]: number }>({
+    Electricity: 0.82,
+    Petrol: 2.31,
+    Diesel: 2.68,
+    LPG: 1.51,
+    "Tree Absorption": 21.00,
+    "Direct Air Capture (DAC)": 1.0,
+    "Carbon Capture & Storage (CCS)": 1.0,
+  })
+
+  useEffect(() => {
+    async function fetchFactors() {
+      try {
+        const dbFactors = await getPublicEmissionFactors()
+        if (dbFactors && dbFactors.length > 0) {
+          const factorMap: { [key: string]: number } = {}
+          dbFactors.forEach((f: any) => {
+            factorMap[f.source] = f.factor
+          })
+          setFactors(prev => ({ ...prev, ...factorMap }))
+        }
+      } catch (e) {
+        console.error("Failed to fetch emission factors:", e)
+      }
+    }
+    fetchFactors()
+  }, [])
+
   const calculate = (e: React.FormEvent) => {
     e.preventDefault()
-    const elecEmission = Number(electricity) * 0.82
-    const petrolEmission = Number(petrol) * 2.31
-    const dieselEmission = Number(diesel) * 2.68
-    const lpgEmission = Number(lpg) * 1.51 // Added LPG emission calculation
+    const elecEmission = Number(electricity) * (factors["Electricity"] || 0.82)
+    const petrolEmission = Number(petrol) * (factors["Petrol"] || 2.31)
+    const dieselEmission = Number(diesel) * (factors["Diesel"] || 2.68)
+    const lpgEmission = Number(lpg) * (factors["LPG"] || 1.51) // Added LPG emission calculation
     const gross = elecEmission + petrolEmission + dieselEmission + lpgEmission
 
-    const solarReduction = Number(solar) * 0.82
-    const treeReduction = Number(trees) * 21
-    const dacReduction = Number(dac) // Added DAC reduction (direct value, no factor)
+    const solarReduction = Number(solar) * (factors["Electricity"] || 0.82)
+    const treeReduction = Number(trees) * (factors["Tree Absorption"] || 21)
+    const dacReduction = Number(dac) * (factors["Direct Air Capture (DAC)"] || 1.0) // DAC reduction
     const reduction = solarReduction + treeReduction + dacReduction
 
     const net = gross - reduction
