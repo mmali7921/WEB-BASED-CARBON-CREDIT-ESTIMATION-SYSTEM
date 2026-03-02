@@ -1,9 +1,15 @@
-import { auth } from "@/auth"
+"use client"
+
 import { Button } from "@/components/ui/button"
 import { handleSignIn, handleSignOut } from "@/app/actions/auth"
+import { useSession } from "next-auth/react"
 
-export async function UserAuthButton() {
-    const session = await auth()
+export function UserAuthButton() {
+    const { data: session, status } = useSession()
+
+    if (status === "loading") {
+        return <Button variant="ghost" disabled>Loading...</Button>
+    }
 
     if (session?.user) {
         return (
