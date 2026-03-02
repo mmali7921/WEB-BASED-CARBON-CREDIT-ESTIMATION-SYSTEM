@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { UserAuthButton } from "@/components/user-auth-button"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 export function Navbar() {
   return (
@@ -24,7 +25,10 @@ export function Navbar() {
           About
         </Link>
       </div>
-      <UserAuthButton />
+      <div className="flex items-center gap-4">
+        <ThemeToggle />
+        <UserAuthButton />
+      </div>
     </nav>
   )
 }

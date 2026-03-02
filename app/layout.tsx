@@ -30,18 +30,27 @@ export const metadata: Metadata = {
   },
 }
 
+import { ThemeProvider } from '@/components/theme-provider'
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-      <body className={`font-sans antialiased`}>
-        <SessionProvider>
-          {children}
-          <Analytics />
-        </SessionProvider>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`font-sans antialiased bg-background text-foreground transition-colors duration-300`}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <SessionProvider>
+            {children}
+            <Analytics />
+          </SessionProvider>
+        </ThemeProvider>
       </body>
     </html>
   )
