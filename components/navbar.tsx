@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
+import { UserAuthButton } from "@/components/user-auth-button"
 
 export function Navbar() {
   return (
@@ -24,12 +24,7 @@ export function Navbar() {
           About
         </Link>
       </div>
-      <Button
-        variant="outline"
-        className="rounded-full px-6 border-foreground hover:bg-foreground hover:text-background transition-all uppercase text-xs tracking-widest bg-transparent"
-      >
-        Request Access
-      </Button>
+      <UserAuthButton />
     </nav>
   )
 }
