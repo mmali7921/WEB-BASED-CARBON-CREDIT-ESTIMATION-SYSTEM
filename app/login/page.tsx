@@ -1,8 +1,17 @@
 import { Navbar } from "@/components/navbar"
 import { Button } from "@/components/ui/button"
 import { handleSignIn } from "@/app/actions/auth"
+import { auth } from "@/auth"
+import { redirect } from "next/navigation"
 
-export default function LoginPage() {
+export default async function LoginPage(props: { searchParams: Promise<{ callbackUrl?: string }> }) {
+    const session = await auth()
+
+    if (session) {
+        const params = await props.searchParams
+        redirect(params?.callbackUrl || "/dashboard")
+    }
+
     return (
         <div className="min-h-screen flex flex-col">
             <Navbar />
