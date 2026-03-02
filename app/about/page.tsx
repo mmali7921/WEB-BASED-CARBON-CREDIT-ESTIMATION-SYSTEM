@@ -174,36 +174,40 @@ export default function AboutPage() {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                         {[
                             {
                                 name: "N Hashim Iqbal",
+                                initials: "NH",
                                 role: "Founder & Research",
                                 desc: "Originated the core vision of the platform and led foundational research into carbon accounting frameworks, emission standards, and credit mechanisms."
                             },
                             {
                                 name: "Muhammed Ali",
+                                initials: "MA",
                                 role: "Lead Eng & Architect",
                                 desc: "Designed and built the platform architecture end‑to‑end. Focused on scalable system design, structured calculation workflows, and maintaining a refined UI system."
                             },
                             {
                                 name: "Muhammed Hisham K",
+                                initials: "MH",
                                 role: "Ops & Validation",
                                 desc: "Contributed to workflow validation, system logic refinement, and ensuring the product aligns with practical, real-world carbon accounting methodologies."
                             },
                             {
                                 name: "Mohammed Swalih AK",
+                                initials: "MS",
                                 role: "Strategy & Docs",
                                 desc: "Supported product positioning, feature validation, and structured documentation connecting research insights with technical implementation."
                             }
                         ].map((member, i) => (
-                            <div key={i} className="border border-border p-6 group hover:border-accent transition-colors flex flex-col h-full">
-                                <div className="w-12 h-12 bg-secondary rounded-full flex items-center justify-center mb-6 shrink-0">
-                                    <Users className="w-5 h-5 text-muted-foreground group-hover:text-accent transition-colors" />
+                            <div key={i} className="bg-secondary/10 hover:bg-secondary/20 transition-all duration-300 rounded-none p-8 flex flex-col h-full shadow-sm hover:shadow-md outline outline-1 outline-transparent hover:outline-border/50">
+                                <div className="w-14 h-14 bg-background border border-border/50 text-foreground font-serif text-lg tracking-tight rounded-full flex items-center justify-center mb-6 shrink-0 shadow-sm">
+                                    {member.initials}
                                 </div>
-                                <h4 className="font-medium text-lg mb-1">{member.name}</h4>
-                                <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-4">{member.role}</p>
-                                <p className="text-sm text-foreground/70 leading-relaxed flex-grow">
+                                <h4 className="font-semibold text-xl tracking-tight mb-2 text-foreground">{member.name}</h4>
+                                <p className="text-[10px] uppercase tracking-[0.2em] font-medium text-accent mb-5">{member.role}</p>
+                                <p className="text-sm text-foreground/60 leading-relaxed flex-grow">
                                     {member.desc}
                                 </p>
                             </div>
