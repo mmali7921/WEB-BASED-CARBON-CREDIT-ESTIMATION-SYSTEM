@@ -24,9 +24,51 @@ export default function DashboardPage() {
     }
     loadRecords()
   }, [session])
-  const [selectedMonth, setSelectedMonth] = useState("December 2025")
+  const availableMonths = Array.from(
+    new Set(
+      dbRecords.map((r) =>
+        new Date(r.date).toLocaleString("default", { month: "long", year: "numeric" })
+      )
+    )
+  )
 
-  const months = ["December 2025", "November 2025", "October 2025", "September 2025"]
+  const months = availableMonths.length > 0 ? availableMonths : ["No Data Yet"]
+  const [selectedMonth, setSelectedMonth] = useState(months[0])
+
+  // Keep selectedMonth in sync if new data loads
+  useEffect(() => {
+    if (availableMonths.length > 0 && !availableMonths.includes(selectedMonth)) {
+      setSelectedMonth(availableMonths[0])
+    }
+  }, [availableMonths, selectedMonth])
+
+  // Compute stats for the selected month
+  const monthlyRecords = dbRecords.filter(
+    (r) => new Date(r.date).toLocaleString("default", { month: "long", year: "numeric" }) === selectedMonth
+  )
+
+  const monthlyGross = monthlyRecords.reduce((acc, r) => acc + r.energyUsage, 0)
+  const monthlyNet = monthlyRecords.reduce((acc, r) => acc + r.totalCarbon, 0)
+  const monthlyReductions = monthlyGross - monthlyNet
+  const monthlyCredits = monthlyNet / 1000
+
+  const currentAssessment = {
+    gross: `${monthlyGross.toFixed(2)} kg`,
+    reductions: `${monthlyReductions.toFixed(2)} kg`,
+    net: `${monthlyNet.toFixed(2)} kg`,
+    status: monthlyRecords.length > 0 ? "Tracked" : "No Data",
+    credits: `${monthlyCredits.toFixed(4)}`,
+    breakdown: [
+      { activity: "Energy Usage", value: monthlyGross, unit: "kg CO₂" },
+      { activity: "Distance / Transport", value: monthlyRecords.reduce((acc, r) => acc + r.distance, 0), unit: "kg CO₂" },
+    ],
+  }
+
+  // Compute Overall Stats
+  const totalEmissions = dbRecords.reduce((acc, r) => acc + r.energyUsage, 0)
+  const totalNet = dbRecords.reduce((acc, r) => acc + r.totalCarbon, 0)
+  const totalCredits = totalNet / 1000
+  const avgMonthlyEmissions = availableMonths.length > 0 ? totalEmissions / availableMonths.length : 0
 
   const downloadReport = () => {
     const reportData = [
@@ -39,7 +81,6 @@ export default function DashboardPage() {
       ["Net Emissions", currentAssessment.net],
       ["Credits Status", currentAssessment.credits],
       ["Compliance Status", currentAssessment.status],
-      ["CO₂ Captured", "0.00 kg"], // Added CO₂ Captured metric to report data
       [""],
       ["Activity Breakdown"],
       ["Activity", "Value", "Unit"],
@@ -56,45 +97,6 @@ export default function DashboardPage() {
     document.body.removeChild(link)
   }
 
-  const assessments = {
-    "December 2025": {
-      gross: "425.50 kg",
-      reductions: "150.00 kg",
-      net: "275.50 kg",
-      status: "Compliant",
-      credits: "0.7245 Surplus",
-      breakdown: [
-        { activity: "Electricity", value: 250.5, unit: "kg CO₂" },
-        { activity: "Petrol", value: 125.0, unit: "kg CO₂" },
-        { activity: "Diesel", value: 50.0, unit: "kg CO₂" },
-        { activity: "LPG", value: 0.0, unit: "kg CO₂" }, // Added LPG to activity breakdown
-      ],
-    },
-    "November 2025": {
-      gross: "150.20 kg",
-      reductions: "20.00 kg",
-      net: "130.20 kg",
-      status: "Compliant",
-      credits: "0.0000",
-      breakdown: [
-        { activity: "Electricity", value: 80.2, unit: "kg CO₂" },
-        { activity: "Transport", value: 40.0, unit: "kg CO₂" },
-        { activity: "Fuel", value: 30.0, unit: "kg CO₂" },
-        { activity: "LPG", value: 0.0, unit: "kg CO₂" }, // Added LPG to activity breakdown
-      ],
-    },
-    // ... other months would follow similar structure
-  }
-
-  const currentAssessment = assessments[selectedMonth as keyof typeof assessments] || assessments["December 2025"]
-
-  const records = [
-    { date: "2025-12-01", activity: "Monthly Home Usage", emissions: "425.50 kg", credits: "0.4255" },
-    { date: "2025-11-15", activity: "Business Travel", emissions: "150.20 kg", credits: "0.1502" },
-    { date: "2025-10-28", activity: "Office Utilities", emissions: "890.00 kg", credits: "0.8900" },
-    { date: "2025-10-05", activity: "Data Center Cooling", emissions: "1,200.40 kg", credits: "1.2004" },
-  ]
-
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
@@ -108,8 +110,9 @@ export default function DashboardPage() {
           </div>
           <Button
             onClick={downloadReport}
+            disabled={dbRecords.length === 0}
             variant="outline"
-            className="rounded-full border-border hover:bg-secondary/50 text-[10px] uppercase tracking-widest px-6 bg-transparent"
+            className="rounded-full border-border hover:bg-secondary/50 text-[10px] uppercase tracking-widest px-6 bg-transparent disabled:opacity-50"
           >
             <Download className="w-3 h-3 mr-2" /> Download Report
           </Button>
@@ -143,9 +146,8 @@ export default function DashboardPage() {
               { label: "Gross Emissions", value: currentAssessment.gross },
               { label: "Reductions", value: currentAssessment.reductions },
               { label: "Net Emissions", value: currentAssessment.net },
-              { label: "Credits Status", value: currentAssessment.credits || "0.0000" },
-              { label: "Compliance", value: currentAssessment.status, highlight: true },
-              { label: "CO₂ Captured", value: "0.00 kg", highlight: false }, // Added CO₂ Captured metric to dashboard summary
+              { label: "Credits", value: currentAssessment.credits },
+              { label: "Status", value: currentAssessment.status, highlight: true },
             ].map((stat, i) => (
               <Card key={i} className="bg-secondary/30 border-border rounded-none">
                 <CardHeader className="pb-2">
@@ -169,7 +171,7 @@ export default function DashboardPage() {
           <h3 className="text-xs uppercase tracking-[0.3em] font-bold mb-8 text-muted-foreground">
             Activity-Wise Emission Breakdown
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             {currentAssessment.breakdown.map((item, i) => (
               <div key={i} className="space-y-4">
                 <div className="flex justify-between items-end border-b border-border pb-2">
@@ -188,7 +190,7 @@ export default function DashboardPage() {
                   <div
                     className="h-full bg-accent transition-all duration-1000"
                     style={{
-                      width: `${(item.value / Number.parseFloat(currentAssessment.gross.replace(/[^0-9.]/g, ""))) * 100}%`,
+                      width: `${monthlyGross > 0 ? (item.value / monthlyGross) * 100 : 0}%`,
                     }}
                   />
                 </div>
@@ -203,9 +205,9 @@ export default function DashboardPage() {
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              { label: "Total Emissions Recorded", value: "2,666.10 kg" },
-              { label: "Average Monthly Emissions", value: "666.52 kg" },
-              { label: "Total Credits Calculated", value: "2.6661" },
+              { label: "Total Emissions Recorded", value: `${totalEmissions.toFixed(2)} kg` },
+              { label: "Average Monthly Emissions", value: `${avgMonthlyEmissions.toFixed(2)} kg` },
+              { label: "Total Net Credits", value: totalCredits.toFixed(4) },
             ].map((stat, i) => (
               <Card key={i} className="bg-secondary/10 border-border rounded-none">
                 <CardHeader className="pb-2">
@@ -221,7 +223,6 @@ export default function DashboardPage() {
           </div>
         </section>
 
-        {/* ... existing code (recent calculations table) ... */}
         <section className="mb-16">
           <h3 className="text-xs uppercase tracking-[0.3em] font-bold mb-8 text-muted-foreground">
             Recent Calculations
@@ -230,36 +231,27 @@ export default function DashboardPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Date</TableHead>
-                <TableHead>Activity</TableHead>
-                <TableHead>Emissions</TableHead>
-                <TableHead>Credits</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>Gross Emissions</TableHead>
+                <TableHead>Net Credits</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {session?.user && dbRecords.length > 0 ? (
+              {dbRecords.length > 0 ? (
                 dbRecords.map((record, i) => (
                   <TableRow key={i}>
                     <TableCell>{new Date(record.date).toLocaleDateString()}</TableCell>
                     <TableCell>Calculated Assessment</TableCell>
-                    <TableCell>{record.energyUsage.toFixed(2)} kg (Gross)</TableCell>
-                    <TableCell>{record.totalCarbon.toFixed(4)}</TableCell>
+                    <TableCell>{record.energyUsage.toFixed(2)} kg</TableCell>
+                    <TableCell>{(record.totalCarbon / 1000).toFixed(4)}</TableCell>
                   </TableRow>
                 ))
-              ) : session?.user && dbRecords.length === 0 ? (
+              ) : (
                 <TableRow>
                   <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
-                    No calculations saved yet.
+                    No calculations saved yet. Access the calculator to generate your first report.
                   </TableCell>
                 </TableRow>
-              ) : (
-                records.map((record, i) => (
-                  <TableRow key={i}>
-                    <TableCell>{record.date}</TableCell>
-                    <TableCell>{record.activity}</TableCell>
-                    <TableCell>{record.emissions}</TableCell>
-                    <TableCell>{record.credits}</TableCell>
-                  </TableRow>
-                ))
               )}
             </TableBody>
           </Table>
