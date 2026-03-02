@@ -14,10 +14,14 @@ export function UserAuthButton() {
     if (session?.user) {
         return (
             <div className="flex items-center gap-4">
-                <span className="text-sm">{session.user.name}</span>
+                <span className="text-[10px] uppercase tracking-widest text-muted-foreground hidden sm:inline-block">
+                    {session.user.name}
+                </span>
                 <Button
                     variant="outline"
+                    size="sm"
                     onClick={() => signOut({ callbackUrl: '/' })}
+                    className="rounded-full text-[10px] uppercase tracking-widest font-bold px-6 border-border/50 hover:bg-secondary/40 transition-colors"
                 >
                     Sign Out
                 </Button>
@@ -27,7 +31,13 @@ export function UserAuthButton() {
 
     return (
         <form action={handleSignIn}>
-            <Button type="submit">Sign in with Google</Button>
+            <Button
+                type="submit"
+                size="sm"
+                className="rounded-full text-[10px] uppercase tracking-widest font-bold px-6 bg-foreground text-background hover:opacity-90 transition-opacity"
+            >
+                Sign In
+            </Button>
         </form>
     )
 }
