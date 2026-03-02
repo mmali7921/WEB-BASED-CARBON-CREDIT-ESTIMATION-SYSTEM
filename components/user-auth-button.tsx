@@ -1,8 +1,8 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { handleSignIn, handleSignOut } from "@/app/actions/auth"
-import { useSession } from "next-auth/react"
+import { handleSignIn } from "@/app/actions/auth"
+import { useSession, signOut } from "next-auth/react"
 
 export function UserAuthButton() {
     const { data: session, status } = useSession()
@@ -15,9 +15,12 @@ export function UserAuthButton() {
         return (
             <div className="flex items-center gap-4">
                 <span className="text-sm">{session.user.name}</span>
-                <form action={handleSignOut}>
-                    <Button variant="outline" type="submit">Sign Out</Button>
-                </form>
+                <Button
+                    variant="outline"
+                    onClick={() => signOut({ callbackUrl: '/' })}
+                >
+                    Sign Out
+                </Button>
             </div>
         )
     }
