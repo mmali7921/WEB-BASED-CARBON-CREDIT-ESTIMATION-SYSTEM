@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { UserAuthButton } from "@/components/user-auth-button"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { MobileNav } from "@/components/mobile-nav"
 
 export function Navbar() {
   return (
@@ -33,6 +34,7 @@ export function Navbar() {
       <div className="flex items-center gap-4">
         <ThemeToggle />
         <UserAuthButton />
+        <MobileNav />
       </div>
     </nav>
   )
