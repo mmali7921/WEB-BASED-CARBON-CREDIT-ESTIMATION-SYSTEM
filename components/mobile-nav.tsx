@@ -24,11 +24,11 @@ export function MobileNav() {
                     <span className="sr-only">Toggle menu</span>
                 </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-[80vw] sm:w-[350px]">
-                <SheetHeader>
-                    <SheetTitle className="text-left font-serif tracking-tight text-xl">carbo</SheetTitle>
+            <SheetContent side="right" className="w-[85vw] sm:w-[350px] p-8 border-l border-border/50">
+                <SheetHeader className="p-0">
+                    <SheetTitle className="text-left font-serif tracking-tight text-2xl">carbo</SheetTitle>
                 </SheetHeader>
-                <div className="flex flex-col gap-6 mt-12 text-sm font-medium uppercase tracking-widest">
+                <div className="flex flex-col gap-8 mt-16 text-sm font-medium uppercase tracking-widest">
                     <Link
                         href="/"
                         onClick={() => setOpen(false)}
