@@ -3,6 +3,8 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { prisma } from "@/lib/prisma"
 
+export const dynamic = "force-dynamic"
+
 export default async function EmissionFactorsPage() {
   const dbFactors = await prisma.emissionFactor.findMany({
     orderBy: { source: "asc" }
