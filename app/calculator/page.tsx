@@ -10,9 +10,8 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowLeft, RefreshCcw, Lightbulb } from "lucide-react"
 import Link from "next/link"
-import { saveCarbonEntry, getPublicEmissionFactors } from "@/app/actions/carbon"
+import { saveCarbonEntry } from "@/app/actions/carbon"
 import { useSession } from "next-auth/react"
-import { useEffect } from "react"
 export default function CalculatorPage() {
   const { data: session } = useSession()
   const [electricity, setElectricity] = useState("")
@@ -39,7 +38,7 @@ export default function CalculatorPage() {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`
   })
 
-  // Dynamic factors from DB
+  // Hardcoded factors
   const [factors, setFactors] = useState<{ [key: string]: number }>({
     "Electricity (Global Average)": 0.45,
     "Petrol (Gasoline)": 2.31,
@@ -49,24 +48,6 @@ export default function CalculatorPage() {
     "Direct Air Capture (DAC)": 1000.0,
     "Carbon Capture & Storage (CCS)": 1.0,
   })
-
-  useEffect(() => {
-    async function fetchFactors() {
-      try {
-        const dbFactors = await getPublicEmissionFactors()
-        if (dbFactors && dbFactors.length > 0) {
-          const factorMap: { [key: string]: number } = {}
-          dbFactors.forEach((f: any) => {
-            factorMap[f.source] = f.factor
-          })
-          setFactors(prev => ({ ...prev, ...factorMap }))
-        }
-      } catch (e) {
-        console.error("Failed to fetch emission factors:", e)
-      }
-    }
-    fetchFactors()
-  }, [])
 
   const calculate = (e: React.FormEvent) => {
     e.preventDefault()

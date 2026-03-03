@@ -49,7 +49,3 @@ export async function getCarbonEntries() {
     return entries
 }
 
-export async function getPublicEmissionFactors() {
-    const factors = await prisma.emissionFactor.findMany()
-    return factors
-}
