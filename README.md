@@ -1,40 +1,40 @@
-# 🌍 Web-Based Carbon Credit Estimation System
+# Web-Based Carbon Credit Estimation System
 
-A modern climate‑tech web application designed to calculate carbon emissions, track reductions, and estimate carbon credit surplus or deficit through a structured and intuitive dashboard interface.
+A full-stack web application designed to calculate carbon emissions, track reduction activities, and determine carbon credit surplus or deficit through a structured dashboard interface.
 
-Built with a startup-oriented design philosophy and full‑stack architecture principles.
-
----
-
-## 🧠 Overview
-
-The **Web-Based Carbon Credit Estimation System** enables users to:
-
-- Input energy and fuel consumption data  
-- Record carbon reduction activities  
-- Calculate gross emissions  
-- Compute total reductions  
-- Determine net emissions  
-- Assess carbon credit surplus or deficit  
-
-This platform transforms raw environmental usage data into structured, actionable carbon insights.
+This project demonstrates modern web development practices combined with sustainability-focused data modeling.
 
 ---
 
-## 🚀 Core Features
+## Overview
 
-### 🔢 Emission Tracking
+The Web-Based Carbon Credit Estimation System enables users to:
+
+- Record energy and fuel consumption data  
+- Track carbon reduction activities  
+- Calculate gross carbon emissions  
+- Compute total emission reductions  
+- Determine net carbon footprint  
+- Estimate carbon credit surplus or deficit  
+
+The system converts environmental usage data into structured carbon accounting insights.
+
+---
+
+## Key Features
+
+### Emission Tracking
 - Electricity consumption (kWh)
 - Petrol consumption (liters)
 - Diesel consumption (liters)
 - LPG consumption (kg)
 
-### 🌱 Reduction Tracking
+### Reduction Tracking
 - Solar energy generation
 - Trees planted
-- CO₂ captured (DAC/CCS)
+- CO₂ captured (Direct Air Capture / Carbon Capture Systems)
 
-### 📊 Carbon Calculations
+### Carbon Calculations
 - Gross emissions calculation  
 - Total reductions computation  
 - Net emissions analysis  
@@ -42,56 +42,87 @@ This platform transforms raw environmental usage data into structured, actionabl
 
 > 1 Carbon Credit = 1000 kg CO₂
 
----
-
-## 🎨 Modern Dashboard Interface
-
-- Clean, card-based layout  
-- Responsive design  
-- Structured visual hierarchy  
-- Premium Light & Dark mode  
-- Minimal SaaS-style aesthetic  
+### User Interface
+- Structured dashboard layout  
+- Card-based design  
+- Responsive architecture  
+- Light and dark theme support  
 
 ---
 
-## 🛠 Tech Stack
+## Technology Stack
 
 ### Frontend
-- **Next.js (App Router)**
-- **TypeScript**
-- **Tailwind CSS**
+- Next.js (App Router)
+- TypeScript
+- Tailwind CSS
 
 ### Backend
 - API Routes / Server Actions
 - Prisma ORM
-- SQLite (Development)
+- SQLite (Development Database)
 
 ---
 
-## ⚙️ How It Works
+## System Workflow
 
-1. User inputs emission data.
-2. System applies standardized emission factors.
+1. User inputs emission-related data.
+2. The system applies predefined emission factors.
 3. Reduction activities are calculated.
-4. Net emissions are computed.
-5. Carbon credit balance is determined.
-6. Results are displayed in a structured dashboard view.
+4. Net emissions are determined.
+5. Carbon credit position is computed.
+6. Results are displayed through dashboard metrics.
 
 ---
 
-## 📂 Project Structure
+## Project Structure
+```
 /app
 /components
 /lib
 /prisma
 /public
+```
 
 ---
 
-## 🧪 Installation & Setup
+## Installation and Setup
 
-### 1️⃣ Clone the Repository
+### Clone the Repository
 
 ```bash
 git clone https://github.com/mmali7921/WEB-BASED-CARBON-CREDIT-ESTIMATION-SYSTEM.git
 cd WEB-BASED-CARBON-CREDIT-ESTIMATION-SYSTEM
+```
+
+Install Dependencies
+```bash
+npm install
+```
+
+
+Configure Environment Variables
+
+Create a .env file in the root directory:
+```code
+DATABASE_URL="file:./dev.db"
+```
+
+Run Development Server
+```bash
+npm run dev
+```
+Access the application at:
+```code
+http://localhost:3000
+```
+
+Development Team
+
+N Hashim Iqbal
+Founder and Research Lead
+
+Muhammed Ali
+Lead Engineer and System Architect
+
+
