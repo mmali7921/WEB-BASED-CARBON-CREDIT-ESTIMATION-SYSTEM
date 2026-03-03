@@ -41,12 +41,12 @@ export default function CalculatorPage() {
 
   // Dynamic factors from DB
   const [factors, setFactors] = useState<{ [key: string]: number }>({
-    "Electricity (Global Average)": 0.45,
-    "Petrol (Gasoline)": 2.31,
+    Electricity: 0.82,
+    Petrol: 2.31,
     Diesel: 2.68,
     LPG: 1.51,
-    "Reforestation (Mature Tree)": 21.00,
-    "Direct Air Capture (DAC)": 1000.0,
+    "Tree Absorption": 21.00,
+    "Direct Air Capture (DAC)": 1.0,
     "Carbon Capture & Storage (CCS)": 1.0,
   })
 
@@ -70,15 +70,15 @@ export default function CalculatorPage() {
 
   const calculate = (e: React.FormEvent) => {
     e.preventDefault()
-    const elecEmission = Number(electricity) * (factors["Electricity (Global Average)"] || 0.45)
-    const petrolEmission = Number(petrol) * (factors["Petrol (Gasoline)"] || 2.31)
+    const elecEmission = Number(electricity) * (factors["Electricity"] || 0.82)
+    const petrolEmission = Number(petrol) * (factors["Petrol"] || 2.31)
     const dieselEmission = Number(diesel) * (factors["Diesel"] || 2.68)
     const lpgEmission = Number(lpg) * (factors["LPG"] || 1.51) // Added LPG emission calculation
     const gross = elecEmission + petrolEmission + dieselEmission + lpgEmission
 
-    const solarReduction = Number(solar) * (factors["Electricity (Global Average)"] || 0.45)
-    const treeReduction = Number(trees) * (factors["Reforestation (Mature Tree)"] || 21)
-    const dacReduction = Number(dac) * (factors["Direct Air Capture (DAC)"] || 1000.0) // DAC reduction
+    const solarReduction = Number(solar) * (factors["Electricity"] || 0.82)
+    const treeReduction = Number(trees) * (factors["Tree Absorption"] || 21)
+    const dacReduction = Number(dac) * (factors["Direct Air Capture (DAC)"] || 1.0) // DAC reduction
     const reduction = solarReduction + treeReduction + dacReduction
 
     const net = gross - reduction
