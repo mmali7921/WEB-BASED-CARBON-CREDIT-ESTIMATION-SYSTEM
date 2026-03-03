@@ -16,13 +16,19 @@ export default function DashboardPage() {
   const [dbRecords, setDbRecords] = useReactState<any[]>([])
 
   useEffect(() => {
+    let isMounted = true
     async function loadRecords() {
       if (session?.user) {
-        const data = await getCarbonEntries()
-        setDbRecords(data)
+        try {
+          const data = await getCarbonEntries()
+          if (isMounted) setDbRecords(data)
+        } catch (error) {
+          console.error("Failed to fetch dashboard records", error)
+        }
       }
     }
     loadRecords()
+    return () => { isMounted = false }
   }, [session])
   const availableMonths = Array.from(
     new Set(

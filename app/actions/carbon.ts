@@ -10,24 +10,27 @@ export async function saveCarbonEntry(data: {
     totalCarbon: number
     date?: string | Date
 }) {
-    const session = await auth()
+    try {
+        const session = await auth()
+        if (!session?.user?.id) {
+            return { success: false, status: 401, error: "Unauthorized" }
+        }
 
-    if (!session?.user?.id) {
-        throw new Error("Must be logged in to save carbon entry")
+        const entry = await prisma.carbonEntry.create({
+            data: {
+                userId: session.user.id,
+                energyUsage: data.energyUsage,
+                distance: data.distance,
+                totalCarbon: data.totalCarbon,
+                date: data.date ? new Date(data.date) : new Date(),
+            },
+        })
+
+        revalidatePath("/dashboard")
+        return { success: true, status: 200, data: entry }
+    } catch (error) {
+        return { success: false, status: 500, error: "Database error" }
     }
-
-    const entry = await prisma.carbonEntry.create({
-        data: {
-            userId: session.user.id,
-            energyUsage: data.energyUsage,
-            distance: data.distance,
-            totalCarbon: data.totalCarbon,
-            date: data.date ? new Date(data.date) : new Date(),
-        },
-    })
-
-    revalidatePath("/dashboard")
-    return entry
 }
 
 export async function getCarbonEntries() {

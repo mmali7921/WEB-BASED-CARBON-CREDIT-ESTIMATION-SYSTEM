@@ -12,7 +12,10 @@ import { ArrowLeft, RefreshCcw, Lightbulb } from "lucide-react"
 import Link from "next/link"
 import { saveCarbonEntry } from "@/app/actions/carbon"
 import { useSession } from "next-auth/react"
+import { useRouter } from "next/navigation"
+
 export default function CalculatorPage() {
+  const router = useRouter()
   const { data: session } = useSession()
   const [electricity, setElectricity] = useState("")
   const [petrol, setPetrol] = useState("")
@@ -91,15 +94,22 @@ export default function CalculatorPage() {
 
     setIsSaving(true)
     try {
-      await saveCarbonEntry({
+      const response = await saveCarbonEntry({
         energyUsage: breakdown.gross,
-        distance: 0, // Keeping distance as 0 since the UI doesn't track distance explicitly
+        distance: 0,
         totalCarbon: breakdown.net,
-        date: new Date(`${entryMonth}-01T12:00:00Z`), // Using middle of selected month's UTC
+        date: new Date(`${entryMonth || new Date().toISOString().slice(0, 7)}-01T12:00:00Z`).toISOString(),
       })
-      setSaveSuccess(true)
+
+      if (response?.success) {
+        setSaveSuccess(true)
+        router.push("/dashboard")
+        router.refresh()
+      } else {
+        alert(response?.error || "Save Failed")
+      }
     } catch (error) {
-      console.error("Failed to save entry", error)
+      alert("Failed to save calculation")
     } finally {
       setIsSaving(false)
     }
