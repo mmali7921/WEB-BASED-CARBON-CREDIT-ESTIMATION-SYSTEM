@@ -45,7 +45,7 @@ export default function CalculatorPage() {
     Petrol: 2.31,
     Diesel: 2.68,
     LPG: 1.51,
-    "Tree Absorption": 21.00,
+    "Reforestation (Mature Tree)": 21.00,
     "Direct Air Capture (DAC)": 1.0,
     "Carbon Capture & Storage (CCS)": 1.0,
   })
@@ -77,7 +77,7 @@ export default function CalculatorPage() {
     const gross = elecEmission + petrolEmission + dieselEmission + lpgEmission
 
     const solarReduction = Number(solar) * (factors["Electricity"] || 0.82)
-    const treeReduction = Number(trees) * (factors["Tree Absorption"] || 21)
+    const treeReduction = Number(trees) * (factors["Reforestation (Mature Tree)"] || 21)
     const dacReduction = Number(dac) * (factors["Direct Air Capture (DAC)"] || 1.0) // DAC reduction
     const reduction = solarReduction + treeReduction + dacReduction
 
