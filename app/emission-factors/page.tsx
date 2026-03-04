@@ -3,18 +3,65 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
 const EMISSION_FACTORS = [
-  { source: "Electricity (Global Average)", factor: 0.45, unit: "kg CO₂/kWh", category: "Emission" },
-  { source: "Petrol (Gasoline)", factor: 2.31, unit: "kg CO₂/liter", category: "Emission" },
-  { source: "Diesel", factor: 2.68, unit: "kg CO₂/liter", category: "Emission" },
-  { source: "LPG", factor: 1.51, unit: "kg CO₂/kg", category: "Emission" },
-  { source: "Reforestation (Mature Tree)", factor: 21.00, unit: "kg CO₂/year", category: "Reduction" },
-  { source: "Direct Air Capture (DAC)", factor: 1000.0, unit: "kg CO₂/ton", category: "Capture" },
-  { source: "Carbon Capture & Storage (CCS)", factor: 1.0, unit: "kg CO₂/kg", category: "Capture" },
+  {
+    source: "Air Travel (Long Haul)",
+    factor: 0.13,
+    unit: "kg CO₂e / pkm",
+    category: "Emission",
+  },
+  {
+    source: "Air Travel (Short Haul)",
+    factor: 0.23,
+    unit: "kg CO₂e / pkm",
+    category: "Emission",
+  },
+  {
+    source: "Diesel Fuel",
+    factor: 2.68,
+    unit: "kg CO₂e / liter",
+    category: "Emission",
+  },
+  {
+    source: "Electricity (Grid Average)",
+    factor: 0.45,
+    unit: "kg CO₂e / kWh",
+    category: "Emission",
+  },
+  {
+    source: "Gasoline (Petrol)",
+    factor: 2.31,
+    unit: "kg CO₂e / liter",
+    category: "Emission",
+  },
+  {
+    source: "Natural Gas",
+    factor: 0.184,
+    unit: "kg CO₂e / kWh",
+    category: "Emission",
+  },
+  {
+    source: "Biochar Application",
+    factor: 2.5,
+    unit: "kg CO₂e / kg biochar",
+    category: "Capture",
+  },
+  {
+    source: "Direct Air Capture (DAC)",
+    factor: 1000,
+    unit: "kg CO₂ / ton captured",
+    category: "Capture",
+  },
+  {
+    source: "Reforestation (Mature Tree)",
+    factor: 21,
+    unit: "kg CO₂ / tree / year",
+    category: "Capture",
+  },
 ]
 
 export default function EmissionFactorsPage() {
-  const emissionFactors = EMISSION_FACTORS.filter(f => f.category === "Emission" || f.category === "Reduction")
-  const captureFactors = EMISSION_FACTORS.filter(f => f.category === "Capture")
+  const emissionFactors = EMISSION_FACTORS.filter((f) => f.category === "Emission")
+  const captureFactors = EMISSION_FACTORS.filter((f) => f.category === "Capture")
 
   return (
     <div className="min-h-screen flex flex-col bg-background">

@@ -10,7 +10,6 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowLeft, RefreshCcw, Lightbulb } from "lucide-react"
 import Link from "next/link"
-import { saveCarbonEntry } from "@/app/actions/carbon"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 
@@ -21,11 +20,17 @@ export default function CalculatorPage() {
   const [petrol, setPetrol] = useState("")
   const [diesel, setDiesel] = useState("")
   const [lpg, setLpg] = useState("") // Added LPG state
+  const [naturalGas, setNaturalGas] = useState("")
+  const [flightLong, setFlightLong] = useState("")
+  const [flightShort, setFlightShort] = useState("")
   const [solar, setSolar] = useState("")
   const [trees, setTrees] = useState("")
   const [dac, setDac] = useState("") // Added DAC state
+  const [biochar, setBiochar] = useState("")
   const [allowedLimit, setAllowedLimit] = useState("1000")
   const [breakdown, setBreakdown] = useState<{
+    energy: number
+    distance: number
     gross: number
     reduction: number
     net: number
@@ -43,27 +48,43 @@ export default function CalculatorPage() {
 
   // Hardcoded factors
   const [factors, setFactors] = useState<{ [key: string]: number }>({
-    "Electricity (Global Average)": 0.45,
+    "Electricity (Grid Average)": 0.45,
     "Petrol (Gasoline)": 2.31,
     Diesel: 2.68,
     LPG: 1.51,
+    "Natural Gas": 0.184,
+    "Air Travel (Long Haul)": 0.13,
+    "Air Travel (Short Haul)": 0.23,
     "Reforestation (Mature Tree)": 21.00,
-    "Direct Air Capture (DAC)": 1000.0,
+    "Direct Air Capture (DAC)": 1.0,
+    "Biochar Application": 2.5,
     "Carbon Capture & Storage (CCS)": 1.0,
   })
 
   const calculate = (e: React.FormEvent) => {
     e.preventDefault()
-    const elecEmission = Number(electricity) * (factors["Electricity (Global Average)"] || 0.45)
+    const elecEmission = Number(electricity) * (factors["Electricity (Grid Average)"] || 0.45)
     const petrolEmission = Number(petrol) * (factors["Petrol (Gasoline)"] || 2.31)
     const dieselEmission = Number(diesel) * (factors["Diesel"] || 2.68)
     const lpgEmission = Number(lpg) * (factors["LPG"] || 1.51) // Added LPG emission calculation
-    const gross = elecEmission + petrolEmission + dieselEmission + lpgEmission
+    const ngEmission = Number(naturalGas) * (factors["Natural Gas"] || 0.184)
+    const flightLongEmission = Number(flightLong) * (factors["Air Travel (Long Haul)"] || 0.13)
+    const flightShortEmission = Number(flightShort) * (factors["Air Travel (Short Haul)"] || 0.23)
 
-    const solarReduction = Number(solar) * (factors["Electricity (Global Average)"] || 0.45)
+    const energy = elecEmission + lpgEmission + ngEmission
+    const distanceE = petrolEmission + dieselEmission + flightLongEmission + flightShortEmission
+    const gross = energy + distanceE
+
+    const solarReduction = Number(solar) * (factors["Electricity (Grid Average)"] || 0.45)
     const treeReduction = Number(trees) * (factors["Reforestation (Mature Tree)"] || 21)
-    const dacReduction = Number(dac) * (factors["Direct Air Capture (DAC)"] || 1000.0) // DAC reduction
-    const reduction = solarReduction + treeReduction + dacReduction
+    const dacReduction = Number(dac) * (factors["Direct Air Capture (DAC)"] || 1.0)
+    const biocharReduction = Number(biochar) * (factors["Biochar Application"] || 2.5)
+
+    let totalReduction = solarReduction + treeReduction + dacReduction + biocharReduction
+    if (totalReduction > gross) {
+      totalReduction = gross
+    }
+    const reduction = totalReduction
 
     const net = gross - reduction
     const limit = Number(allowedLimit)
@@ -85,7 +106,7 @@ export default function CalculatorPage() {
       suggestions.push("You are maintaining an excellent balance. Continue your current sustainable practices.")
     }
 
-    setBreakdown({ gross, reduction, net, credits: creditDiff, isCompliant, suggestions })
+    setBreakdown({ energy, distance: distanceE, gross, reduction, net, credits: creditDiff, isCompliant, suggestions })
     setSaveSuccess(false) // reset success state on new calc
   }
 
@@ -94,19 +115,26 @@ export default function CalculatorPage() {
 
     setIsSaving(true)
     try {
-      const response = await saveCarbonEntry({
-        energyUsage: breakdown.gross,
-        distance: 0,
-        totalCarbon: breakdown.net,
-        date: new Date(`${entryMonth || new Date().toISOString().slice(0, 7)}-01T12:00:00Z`).toISOString(),
+      const response = await fetch("/api/carbon-entries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          energyUsage: breakdown.energy,
+          distance: breakdown.distance,
+          totalCarbon: breakdown.net,
+          date: new Date(
+            `${entryMonth || new Date().toISOString().slice(0, 7)}-01T12:00:00Z`
+          ).toISOString(),
+        }),
       })
 
-      if (response?.success) {
+      if (response.ok) {
         setSaveSuccess(true)
         router.push("/dashboard")
         router.refresh()
       } else {
-        alert(response?.error || "Save Failed")
+        const data = await response.json().catch(() => null)
+        alert(data?.error || "Save Failed")
       }
     } catch (error) {
       alert("Failed to save calculation")
@@ -202,6 +230,54 @@ export default function CalculatorPage() {
                   </div>
                   <div className="space-y-3">
                     <Label
+                      htmlFor="naturalGas"
+                      className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground"
+                    >
+                      Natural Gas (kWh)
+                    </Label>
+                    <Input
+                      id="naturalGas"
+                      type="number"
+                      placeholder="e.g. 100"
+                      value={naturalGas}
+                      onChange={(e) => setNaturalGas(e.target.value)}
+                      className="h-12 bg-transparent border-x-0 border-t-0 border-b-2 border-border focus:border-foreground rounded-none px-0 text-lg transition-all"
+                    />
+                  </div>
+                  <div className="space-y-3">
+                    <Label
+                      htmlFor="flightLong"
+                      className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground"
+                    >
+                      Air Travel - Long Haul (pkm)
+                    </Label>
+                    <Input
+                      id="flightLong"
+                      type="number"
+                      placeholder="e.g. 2000"
+                      value={flightLong}
+                      onChange={(e) => setFlightLong(e.target.value)}
+                      className="h-12 bg-transparent border-x-0 border-t-0 border-b-2 border-border focus:border-foreground rounded-none px-0 text-lg transition-all"
+                    />
+                  </div>
+                  <div className="space-y-3">
+                    <Label
+                      htmlFor="flightShort"
+                      className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground"
+                    >
+                      Air Travel - Short Haul (pkm)
+                    </Label>
+                    <Input
+                      id="flightShort"
+                      type="number"
+                      placeholder="e.g. 500"
+                      value={flightShort}
+                      onChange={(e) => setFlightShort(e.target.value)}
+                      className="h-12 bg-transparent border-x-0 border-t-0 border-b-2 border-border focus:border-foreground rounded-none px-0 text-lg transition-all"
+                    />
+                  </div>
+                  <div className="space-y-3">
+                    <Label
                       htmlFor="limit"
                       className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground"
                     >
@@ -273,6 +349,22 @@ export default function CalculatorPage() {
                     <p className="text-[9px] text-muted-foreground/60 mt-2">
                       Manually enter CO₂ captured using carbon capture systems
                     </p>
+                  </div>
+                  <div className="space-y-3">
+                    <Label
+                      htmlFor="biochar"
+                      className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground"
+                    >
+                      Biochar Application (KG)
+                    </Label>
+                    <Input
+                      id="biochar"
+                      type="number"
+                      placeholder="e.g. 50"
+                      value={biochar}
+                      onChange={(e) => setBiochar(e.target.value)}
+                      className="h-12 bg-transparent border-x-0 border-t-0 border-b-2 border-border focus:border-accent rounded-none px-0 text-lg transition-all"
+                    />
                   </div>
                 </div>
               </div>

@@ -46,7 +46,9 @@ export default function DashboardClient({ dbRecords: initialRecords, error }: Da
     (r) => new Date(r.date).toLocaleString("default", { month: "long", year: "numeric" }) === selectedMonth
   )
 
-  const monthlyGross = monthlyRecords.reduce((acc, r) => acc + r.energyUsage, 0)
+  const monthlyEnergy = monthlyRecords.reduce((acc, r) => acc + r.energyUsage, 0)
+  const monthlyDistance = monthlyRecords.reduce((acc, r) => acc + r.distance, 0)
+  const monthlyGross = monthlyEnergy + monthlyDistance
   const monthlyNet = monthlyRecords.reduce((acc, r) => acc + r.totalCarbon, 0)
   const monthlyReductions = monthlyGross - monthlyNet
   const monthlyCredits = monthlyNet / 1000
@@ -58,12 +60,12 @@ export default function DashboardClient({ dbRecords: initialRecords, error }: Da
     status: monthlyRecords.length > 0 ? "Tracked" : "No Data",
     credits: `${monthlyCredits.toFixed(4)}`,
     breakdown: [
-      { activity: "Energy Usage", value: monthlyGross, unit: "kg CO₂" },
-      { activity: "Distance / Transport", value: monthlyRecords.reduce((acc, r) => acc + r.distance, 0), unit: "kg CO₂" },
+      { activity: "Energy Usage", value: monthlyEnergy, unit: "kg CO₂" },
+      { activity: "Distance / Transport", value: monthlyDistance, unit: "kg CO₂" },
     ],
   }
 
-  const totalEmissions = dbRecords.reduce((acc, r) => acc + r.energyUsage, 0)
+  const totalEmissions = dbRecords.reduce((acc, r) => acc + r.energyUsage + r.distance, 0)
   const totalNet = dbRecords.reduce((acc, r) => acc + r.totalCarbon, 0)
   const totalCredits = totalNet / 1000
   const avgMonthlyEmissions = availableMonths.length > 0 ? totalEmissions / availableMonths.length : 0
@@ -251,7 +253,7 @@ export default function DashboardClient({ dbRecords: initialRecords, error }: Da
                   <TableRow key={record.id}>
                     <TableCell>{new Date(record.date).toLocaleDateString()}</TableCell>
                     <TableCell>Calculated Assessment</TableCell>
-                    <TableCell>{record.energyUsage.toFixed(2)} kg</TableCell>
+                    <TableCell>{(record.energyUsage + record.distance).toFixed(2)} kg</TableCell>
                     <TableCell>{(record.totalCarbon / 1000).toFixed(4)}</TableCell>
                   </TableRow>
                 ))
