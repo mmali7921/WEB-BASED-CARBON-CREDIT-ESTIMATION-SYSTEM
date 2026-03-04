@@ -2,6 +2,8 @@ import { auth } from "@/auth"
 import { getCarbonEntries } from "@/app/actions/carbon"
 import DashboardClient from "./dashboard-client"
 
+export const dynamic = "force-dynamic"
+
 export default async function DashboardPage() {
   let records: Awaited<ReturnType<typeof getCarbonEntries>> = []
   let error: string | null = null
