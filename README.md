@@ -60,7 +60,7 @@ The system converts environmental usage data into structured carbon accounting i
 ### Backend
 - API Routes / Server Actions
 - Prisma ORM
-- SQLite (Development Database)
+- PostgreSQL (via Prisma)
 
 ---
 
@@ -103,9 +103,23 @@ npm install
 
 Configure Environment Variables
 
-Create a .env file in the root directory:
-```code
-DATABASE_URL="file:./dev.db"
+Create a `.env` file in the root directory and set the following (example values shown; replace with your own):
+
+```bash
+# PostgreSQL database used by Prisma
+DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE"
+DIRECT_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE"
+
+# NextAuth (Auth.js) configuration
+AUTH_SECRET="a-long-random-secret-string"
+AUTH_GOOGLE_ID="your-google-oauth-client-id"
+AUTH_GOOGLE_SECRET="your-google-oauth-client-secret"
+```
+
+After setting these, generate and apply Prisma migrations against your database:
+
+```bash
+npx prisma migrate dev
 ```
 
 Run Development Server
